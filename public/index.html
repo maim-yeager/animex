@@ -1,0 +1,1984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Maim Animex – Premium Anime Streaming</title>
+<meta name="description" content="Watch anime online in HD – Hindi Dubbed, Subbed, Trending. Maim Animex.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Noto+Sans+JP:wght@300;400;500;700&family=Exo+2:wght@300;400;600;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<style>
+/* ─── CSS Variables & Reset ─────────────────────────────────── */
+:root {
+  --bg-primary: #06020f;
+  --bg-secondary: #0d0520;
+  --bg-card: #110825;
+  --bg-glass: rgba(15, 5, 40, 0.7);
+  --accent: #9d4edd;
+  --accent2: #c77dff;
+  --accent-neon: #bf5fff;
+  --gold: #ffd700;
+  --red: #ff4757;
+  --green: #2ed573;
+  --blue: #1e90ff;
+  --text: #e8e0f0;
+  --text-muted: #8b7aa8;
+  --text-dim: #5a4a72;
+  --border: rgba(157, 78, 221, 0.25);
+  --shadow-neon: 0 0 20px rgba(157, 78, 221, 0.4);
+  --shadow-card: 0 8px 32px rgba(0,0,0,0.5);
+  --glow: 0 0 40px rgba(157,78,221,0.3);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --radius: 12px;
+  --nav-h: 64px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; overflow-x: hidden; }
+body {
+  font-family: 'Exo 2', 'Noto Sans JP', sans-serif;
+  background: var(--bg-primary);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% 10%, rgba(157,78,221,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 80%, rgba(30,10,80,0.15) 0%, transparent 50%);
+  pointer-events: none; z-index: 0;
+}
+a { text-decoration: none; color: inherit; }
+img { max-width: 100%; display: block; }
+button { cursor: pointer; border: none; background: none; font-family: inherit; }
+ul, ol { list-style: none; }
+input, select, textarea { font-family: inherit; outline: none; }
+/* ─── Scrollbar ─────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 4px; }
+::-webkit-scrollbar-track { background: var(--bg-primary); }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
+
+/* ─── Utility ────────────────────────────────────────────────── */
+.container { max-width: 1400px; margin: 0 auto; padding: 0 20px; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0); }
+.hidden { display: none !important; }
+.flex { display: flex; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.gap-sm { gap: 8px; }
+.gap-md { gap: 16px; }
+.fade-in { animation: fadeIn 0.4s ease; }
+@keyframes fadeIn { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+@keyframes shimmer {
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
+}
+@keyframes glow-pulse {
+  0%,100% { box-shadow: 0 0 15px rgba(157,78,221,0.3); }
+  50% { box-shadow: 0 0 35px rgba(157,78,221,0.7), 0 0 60px rgba(157,78,221,0.2); }
+}
+@keyframes slideIn { from{transform:translateX(-20px);opacity:0} to{transform:none;opacity:1} }
+@keyframes spin { to{transform:rotate(360deg)} }
+
+/* ─── Loading Skeleton ───────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(90deg, var(--bg-card) 25%, rgba(157,78,221,0.07) 50%, var(--bg-card) 75%);
+  background-size: 400px 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius);
+}
+
+/* ─── Loader Overlay ─────────────────────────────────────────── */
+#page-loader {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--bg-primary);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 20px; transition: opacity 0.5s ease;
+}
+.loader-logo {
+  font-family: 'Rajdhani', sans-serif; font-size: 2.5rem; font-weight: 700;
+  background: linear-gradient(135deg, var(--accent2), var(--accent));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  letter-spacing: 2px;
+}
+.loader-spinner {
+  width: 48px; height: 48px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* ─── Navigation ─────────────────────────────────────────────── */
+#nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  height: var(--nav-h);
+  background: linear-gradient(180deg, rgba(6,2,15,0.98) 0%, rgba(6,2,15,0.85) 100%);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  transition: var(--transition);
+}
+.nav-inner {
+  height: 100%; max-width: 1400px; margin: 0 auto; padding: 0 20px;
+  display: flex; align-items: center; gap: 20px;
+}
+.nav-logo {
+  font-family: 'Rajdhani', sans-serif; font-size: 1.6rem; font-weight: 700;
+  background: linear-gradient(135deg, #fff 0%, var(--accent2) 60%, var(--accent) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  letter-spacing: 1px; white-space: nowrap; flex-shrink: 0;
+}
+.nav-logo span { color: var(--accent); -webkit-text-fill-color: var(--accent); }
+
+/* Desktop nav links */
+.nav-links {
+  display: flex; align-items: center; gap: 4px; flex: 1;
+}
+.nav-links a {
+  padding: 6px 14px; border-radius: 8px; font-size: 0.875rem; font-weight: 600;
+  color: var(--text-muted); transition: var(--transition);
+  letter-spacing: 0.5px; white-space: nowrap;
+}
+.nav-links a:hover, .nav-links a.active {
+  color: var(--text); background: rgba(157,78,221,0.15);
+}
+.nav-links a.active { color: var(--accent2); }
+
+.nav-right { display: flex; align-items: center; gap: 12px; margin-left: auto; }
+
+/* Search */
+.nav-search {
+  position: relative; display: flex; align-items: center;
+}
+.nav-search input {
+  background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+  border-radius: 24px; padding: 8px 16px 8px 40px;
+  color: var(--text); font-size: 0.875rem; width: 220px;
+  transition: var(--transition);
+}
+.nav-search input:focus {
+  width: 300px; border-color: var(--accent);
+  background: rgba(157,78,221,0.08);
+  box-shadow: 0 0 0 3px rgba(157,78,221,0.15);
+}
+.nav-search input::placeholder { color: var(--text-dim); }
+.nav-search .search-icon {
+  position: absolute; left: 12px; width: 16px; height: 16px;
+  opacity: 0.5; pointer-events: none;
+}
+
+/* Search dropdown */
+#search-dropdown {
+  position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+  max-height: 400px; overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+  z-index: 100;
+}
+.search-result-item {
+  display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+  cursor: pointer; transition: var(--transition);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.search-result-item:hover { background: rgba(157,78,221,0.12); }
+.search-result-item img { width: 40px; height: 56px; object-fit: cover; border-radius: 6px; }
+.search-result-info .title { font-size: 0.875rem; font-weight: 600; color: var(--text); }
+.search-result-info .meta { font-size: 0.75rem; color: var(--text-muted); margin-top: 2px; }
+.search-loading { padding: 20px; text-align: center; color: var(--text-muted); font-size: 0.875rem; }
+
+/* Avatar/icon buttons */
+.nav-icon-btn {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--transition); position: relative;
+}
+.nav-icon-btn:hover { background: rgba(157,78,221,0.2); border-color: var(--accent); }
+.nav-icon-btn svg { width: 18px; height: 18px; fill: var(--text-muted); }
+.nav-icon-btn:hover svg { fill: var(--accent2); }
+.notif-badge {
+  position: absolute; top: -3px; right: -3px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--red); font-size: 0.6rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--bg-primary);
+}
+
+/* Hamburger */
+.hamburger {
+  display: none; flex-direction: column; gap: 5px;
+  padding: 8px; border-radius: 8px;
+}
+.hamburger span {
+  display: block; width: 22px; height: 2px;
+  background: var(--text); border-radius: 2px; transition: var(--transition);
+}
+
+/* Mobile nav */
+#mobile-nav {
+  display: none; position: fixed; inset: 0; z-index: 999;
+  background: rgba(6,2,15,0.98); backdrop-filter: blur(20px);
+  flex-direction: column; padding: 80px 24px 24px;
+  animation: slideIn 0.3s ease;
+}
+#mobile-nav.open { display: flex; }
+#mobile-nav a {
+  padding: 14px 0; font-size: 1.1rem; font-weight: 600;
+  border-bottom: 1px solid var(--border); color: var(--text-muted);
+  display: flex; align-items: center; gap: 12px;
+}
+#mobile-nav a:hover { color: var(--accent2); }
+#mobile-nav a svg { width: 20px; height: 20px; }
+.mobile-search {
+  margin-top: 20px;
+  background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 16px;
+  color: var(--text); font-size: 1rem; width: 100%;
+}
+
+/* ─── Main Content ────────────────────────────────────────────── */
+#main { padding-top: var(--nav-h); }
+
+/* ─── Pages ──────────────────────────────────────────────────── */
+.page { display: none; animation: fadeIn 0.3s ease; }
+.page.active { display: block; }
+
+/* ─── Announcement Banner ────────────────────────────────────── */
+#announcement-bar {
+  background: linear-gradient(90deg, var(--accent), #6a0dad);
+  color: #fff; text-align: center; padding: 8px 20px;
+  font-size: 0.875rem; font-weight: 600; position: relative;
+}
+#announcement-bar button {
+  position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+  color: rgba(255,255,255,0.7); font-size: 1.2rem; line-height: 1;
+}
+
+/* ─── Hero Banner Slider ─────────────────────────────────────── */
+#hero {
+  position: relative; height: min(560px, 60vw); overflow: hidden;
+  margin-bottom: 40px; min-height: 320px;
+}
+.hero-slide {
+  position: absolute; inset: 0;
+  opacity: 0; transition: opacity 0.8s ease;
+}
+.hero-slide.active { opacity: 1; }
+.hero-bg {
+  width: 100%; height: 100%; object-fit: cover; object-position: center top;
+}
+.hero-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg,
+    rgba(6,2,15,0.95) 0%,
+    rgba(6,2,15,0.7) 40%,
+    rgba(6,2,15,0.2) 70%,
+    transparent 100%),
+    linear-gradient(0deg, rgba(6,2,15,1) 0%, transparent 40%);
+}
+.hero-content {
+  position: absolute; bottom: 60px; left: 0;
+  padding: 0 40px; max-width: 600px;
+  animation: fadeIn 0.6s ease;
+}
+.hero-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: rgba(157,78,221,0.2); border: 1px solid var(--accent);
+  border-radius: 20px; padding: 4px 12px; font-size: 0.75rem;
+  font-weight: 700; color: var(--accent2); text-transform: uppercase;
+  letter-spacing: 1px; margin-bottom: 12px;
+}
+.hero-title {
+  font-family: 'Rajdhani', sans-serif; font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 700; line-height: 1.1; margin-bottom: 12px;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.8);
+}
+.hero-desc {
+  font-size: 0.9rem; color: rgba(232,224,240,0.8); line-height: 1.6;
+  margin-bottom: 20px; max-width: 480px;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.hero-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+.btn-watch {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--accent); color: #fff;
+  padding: 12px 28px; border-radius: 8px;
+  font-weight: 700; font-size: 0.95rem; letter-spacing: 0.5px;
+  transition: var(--transition);
+  box-shadow: 0 4px 20px rgba(157,78,221,0.4);
+}
+.btn-watch:hover {
+  background: var(--accent2); transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(157,78,221,0.6);
+}
+.btn-watch svg { width: 18px; height: 18px; fill: currentColor; }
+.btn-outline {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.1); color: var(--text);
+  padding: 12px 24px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2);
+  font-weight: 600; font-size: 0.95rem; transition: var(--transition);
+  backdrop-filter: blur(10px);
+}
+.btn-outline:hover { background: rgba(255,255,255,0.18); transform: translateY(-2px); }
+.btn-outline svg { width: 18px; height: 18px; fill: currentColor; }
+
+/* Hero dots */
+.hero-dots {
+  position: absolute; bottom: 24px; left: 40px;
+  display: flex; gap: 8px;
+}
+.hero-dot {
+  width: 8px; height: 8px; border-radius: 4px;
+  background: rgba(255,255,255,0.3); transition: var(--transition); cursor: pointer;
+}
+.hero-dot.active { width: 24px; background: var(--accent); }
+
+/* Hero navigation arrows */
+.hero-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(6,2,15,0.6); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: var(--transition); z-index: 2;
+}
+.hero-arrow:hover { background: var(--accent); border-color: var(--accent); }
+.hero-arrow svg { width: 20px; height: 20px; fill: var(--text); }
+#hero-prev { left: 16px; }
+#hero-next { right: 16px; }
+
+/* ─── Sections ───────────────────────────────────────────────── */
+.section {
+  padding: 0 0 48px;
+  position: relative; z-index: 1;
+}
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 20px; margin-bottom: 20px; max-width: 1400px; margin-left: auto; margin-right: auto;
+}
+.section-title {
+  font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 700;
+  display: flex; align-items: center; gap: 10px; color: var(--text);
+}
+.section-title::before {
+  content: ''; display: block; width: 4px; height: 22px;
+  background: linear-gradient(180deg, var(--accent2), var(--accent));
+  border-radius: 2px;
+}
+.section-link {
+  font-size: 0.8rem; font-weight: 600; color: var(--accent2);
+  display: flex; align-items: center; gap: 4px; transition: var(--transition);
+}
+.section-link:hover { color: var(--accent); }
+.section-link svg { width: 14px; height: 14px; fill: currentColor; }
+
+/* ─── Anime Grid ─────────────────────────────────────────────── */
+.anime-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px; padding: 0 20px;
+  max-width: 1400px; margin: 0 auto;
+}
+.anime-grid.large {
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+}
+
+/* ─── Horizontal Scroll Row ──────────────────────────────────── */
+.anime-row {
+  display: flex; gap: 14px;
+  overflow-x: auto; overflow-y: visible;
+  padding: 4px 20px 12px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.anime-row::-webkit-scrollbar { display: none; }
+.anime-row .anime-card {
+  flex: 0 0 160px; scroll-snap-align: start;
+}
+
+/* ─── Anime Card ─────────────────────────────────────────────── */
+.anime-card {
+  border-radius: var(--radius); overflow: hidden;
+  background: var(--bg-card); border: 1px solid transparent;
+  cursor: pointer; transition: var(--transition);
+  position: relative;
+}
+.anime-card:hover {
+  transform: translateY(-6px) scale(1.02);
+  border-color: var(--accent);
+  box-shadow: var(--shadow-neon), var(--shadow-card);
+}
+.card-thumb {
+  position: relative; padding-top: 140%; overflow: hidden;
+}
+.card-thumb img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; transition: transform 0.5s ease;
+}
+.anime-card:hover .card-thumb img { transform: scale(1.08); }
+
+/* Card overlays */
+.card-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(0deg, rgba(6,2,15,0.95) 0%, transparent 50%);
+  opacity: 0; transition: var(--transition);
+}
+.anime-card:hover .card-overlay { opacity: 1; }
+.card-play-btn {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%) scale(0);
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--accent); border: 3px solid rgba(255,255,255,0.3);
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--transition);
+  box-shadow: 0 0 30px rgba(157,78,221,0.6);
+}
+.anime-card:hover .card-play-btn { transform: translate(-50%,-50%) scale(1); }
+.card-play-btn svg { width: 22px; height: 22px; fill: #fff; margin-left: 3px; }
+
+/* Card badges */
+.card-badge {
+  position: absolute; top: 8px; left: 8px; z-index: 2;
+  padding: 2px 8px; border-radius: 4px;
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;
+}
+.badge-sub { background: rgba(30,144,255,0.85); color: #fff; }
+.badge-dub { background: rgba(46,213,115,0.85); color: #fff; }
+.badge-hindi { background: rgba(255,71,87,0.85); color: #fff; }
+.badge-new { background: rgba(255,215,0,0.9); color: #000; }
+.badge-ep {
+  position: absolute; bottom: 8px; right: 8px; z-index: 2;
+  background: rgba(0,0,0,0.75); color: var(--text);
+  padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 600;
+}
+.badge-rating {
+  position: absolute; top: 8px; right: 8px; z-index: 2;
+  display: flex; align-items: center; gap: 3px;
+  background: rgba(0,0,0,0.75); color: var(--gold);
+  padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700;
+}
+.badge-rating svg { width: 10px; height: 10px; fill: var(--gold); }
+
+/* Card info */
+.card-info {
+  padding: 10px 10px 12px;
+}
+.card-title {
+  font-size: 0.875rem; font-weight: 600;
+  color: var(--text); line-height: 1.3;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  transition: var(--transition);
+}
+.anime-card:hover .card-title { color: var(--accent2); }
+.card-meta {
+  margin-top: 5px; display: flex; gap: 8px; flex-wrap: wrap;
+}
+.card-tag {
+  font-size: 0.7rem; color: var(--text-muted);
+  background: rgba(255,255,255,0.05); border-radius: 4px; padding: 2px 7px;
+}
+
+/* Favorite button on card */
+.card-fav {
+  position: absolute; top: 8px; right: 8px; z-index: 3;
+  width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(0,0,0,0.6); display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: var(--transition);
+}
+.anime-card:hover .card-fav { opacity: 1; }
+.card-fav.active { opacity: 1; background: rgba(255,71,87,0.3); }
+.card-fav svg { width: 14px; height: 14px; fill: var(--text-muted); }
+.card-fav.active svg { fill: var(--red); }
+
+/* ─── Genres Bar ─────────────────────────────────────────────── */
+.genres-bar {
+  display: flex; gap: 10px; overflow-x: auto; padding: 0 20px 16px;
+  scrollbar-width: none; max-width: 1400px; margin: 0 auto;
+}
+.genres-bar::-webkit-scrollbar { display: none; }
+.genre-chip {
+  flex-shrink: 0; padding: 7px 18px; border-radius: 20px;
+  background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+  font-size: 0.8rem; font-weight: 600; color: var(--text-muted);
+  transition: var(--transition); cursor: pointer; white-space: nowrap;
+}
+.genre-chip:hover, .genre-chip.active {
+  background: rgba(157,78,221,0.2); border-color: var(--accent);
+  color: var(--accent2);
+}
+
+/* ─── Continue Watching ───────────────────────────────────────── */
+.continue-card {
+  position: relative; border-radius: var(--radius);
+  overflow: hidden; background: var(--bg-card);
+  cursor: pointer; transition: var(--transition);
+  flex: 0 0 240px;
+}
+.continue-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-neon); }
+.continue-thumb { position: relative; padding-top: 56.25%; }
+.continue-thumb img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+}
+.continue-progress {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+  background: rgba(255,255,255,0.15);
+}
+.continue-bar {
+  height: 100%; background: var(--accent);
+  transition: width 0.3s ease;
+}
+.continue-info { padding: 10px 12px; }
+.continue-title { font-size: 0.85rem; font-weight: 600; }
+.continue-ep { font-size: 0.75rem; color: var(--text-muted); margin-top: 3px; }
+
+/* ─── Anime Details Page ─────────────────────────────────────── */
+#anime-details-page {
+  padding-bottom: 60px;
+}
+.details-banner {
+  position: relative; height: 340px; overflow: hidden;
+}
+.details-banner img {
+  width: 100%; height: 100%; object-fit: cover; object-position: center 30%;
+  filter: blur(2px) brightness(0.4);
+}
+.details-banner::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(0deg, var(--bg-primary) 0%, transparent 60%),
+              linear-gradient(90deg, var(--bg-primary) 0%, transparent 50%);
+}
+.details-main {
+  position: relative; z-index: 1; max-width: 1200px; margin: 0 auto;
+  padding: 20px 20px 0; margin-top: -120px;
+  display: flex; gap: 32px; flex-wrap: wrap;
+}
+.details-poster {
+  width: 200px; flex-shrink: 0; border-radius: var(--radius);
+  overflow: hidden; border: 2px solid var(--border);
+  box-shadow: var(--shadow-neon);
+}
+.details-poster img { width: 100%; aspect-ratio: 2/3; object-fit: cover; }
+.details-info { flex: 1; min-width: 240px; }
+.details-title {
+  font-family: 'Rajdhani', sans-serif; font-size: 2rem; font-weight: 700;
+  margin-bottom: 10px; line-height: 1.2;
+}
+.details-meta {
+  display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px;
+}
+.meta-tag {
+  display: flex; align-items: center; gap: 5px;
+  padding: 5px 12px; border-radius: 6px;
+  background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+  font-size: 0.78rem; font-weight: 600; color: var(--text-muted);
+}
+.meta-tag svg { width: 13px; height: 13px; fill: var(--accent); }
+.meta-tag.rating-tag { color: var(--gold); border-color: rgba(255,215,0,0.3); }
+.meta-tag.rating-tag svg { fill: var(--gold); }
+.details-genres { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+.details-genre-chip {
+  padding: 4px 12px; border-radius: 4px;
+  background: rgba(157,78,221,0.15); border: 1px solid rgba(157,78,221,0.3);
+  font-size: 0.78rem; font-weight: 600; color: var(--accent2);
+  cursor: pointer; transition: var(--transition);
+}
+.details-genre-chip:hover { background: rgba(157,78,221,0.3); }
+.details-desc {
+  font-size: 0.9rem; line-height: 1.7; color: rgba(232,224,240,0.8);
+  margin-bottom: 20px; max-width: 640px;
+}
+.details-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 24px; }
+.btn-fav {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 11px 22px; border-radius: 8px;
+  background: rgba(255,71,87,0.12); border: 1px solid rgba(255,71,87,0.4);
+  color: var(--red); font-weight: 600; font-size: 0.9rem; transition: var(--transition);
+}
+.btn-fav:hover, .btn-fav.active {
+  background: rgba(255,71,87,0.25); transform: translateY(-2px);
+}
+.btn-fav svg { width: 16px; height: 16px; fill: currentColor; }
+
+/* Episode List */
+.episodes-section { max-width: 1200px; margin: 32px auto 0; padding: 0 20px; }
+.episodes-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 16px;
+}
+.episodes-title { font-family: 'Rajdhani', sans-serif; font-size: 1.3rem; font-weight: 700; }
+.ep-filter {
+  background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+  color: var(--text); padding: 6px 12px; border-radius: 8px; font-size: 0.85rem;
+}
+.episodes-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 8px;
+  max-height: 280px; overflow-y: auto; padding-right: 8px;
+}
+.ep-btn {
+  padding: 8px 6px; border-radius: 8px; text-align: center;
+  background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+  font-size: 0.8rem; font-weight: 600; color: var(--text-muted);
+  transition: var(--transition); cursor: pointer;
+}
+.ep-btn:hover { background: rgba(157,78,221,0.2); color: var(--accent2); border-color: var(--accent); }
+.ep-btn.current { background: var(--accent); color: #fff; border-color: var(--accent); }
+.ep-btn.watched { color: var(--text-dim); border-color: transparent; }
+
+/* Related anime */
+.related-section { max-width: 1200px; margin: 32px auto 0; padding: 0 20px; }
+
+/* ─── Watch Page ─────────────────────────────────────────────── */
+#watch-page { padding-bottom: 60px; }
+.watch-layout {
+  max-width: 1400px; margin: 0 auto; padding: 20px;
+  display: grid; grid-template-columns: 1fr 340px; gap: 24px;
+}
+.player-container {
+  border-radius: var(--radius); overflow: hidden;
+  background: #000; position: relative;
+  box-shadow: var(--shadow-card);
+}
+.player-wrapper {
+  position: relative; padding-top: 56.25%;
+  background: #000;
+}
+#video-player {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+}
+#player-iframe {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  border: none;
+}
+/* Player controls overlay */
+.player-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(0deg, rgba(0,0,0,0.7) 0%, transparent 30%);
+  opacity: 0; transition: var(--transition); pointer-events: none;
+}
+.player-container:hover .player-overlay { opacity: 1; }
+.player-controls {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 16px; opacity: 0; transition: var(--transition);
+}
+.player-container:hover .player-controls { opacity: 1; }
+.progress-bar {
+  width: 100%; height: 4px; background: rgba(255,255,255,0.2);
+  border-radius: 2px; cursor: pointer; margin-bottom: 10px;
+  position: relative;
+}
+.progress-fill { height: 100%; background: var(--accent); border-radius: 2px; width: 0%; }
+.controls-row {
+  display: flex; align-items: center; gap: 12px;
+}
+.ctrl-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.1); transition: var(--transition);
+}
+.ctrl-btn:hover { background: var(--accent); }
+.ctrl-btn svg { width: 16px; height: 16px; fill: #fff; }
+.vol-slider {
+  width: 70px; height: 3px; background: rgba(255,255,255,0.2);
+  border-radius: 2px; cursor: pointer; appearance: none;
+}
+.skip-btn {
+  margin-left: auto; padding: 6px 14px; border-radius: 6px;
+  background: rgba(255,215,0,0.2); border: 1px solid var(--gold);
+  color: var(--gold); font-size: 0.78rem; font-weight: 700;
+  transition: var(--transition);
+}
+.skip-btn:hover { background: rgba(255,215,0,0.35); }
+.time-display { font-size: 0.8rem; color: rgba(255,255,255,0.7); }
+
+/* Watch info */
+.watch-info { padding: 16px 0; }
+.watch-title { font-family: 'Rajdhani', sans-serif; font-size: 1.4rem; font-weight: 700; margin-bottom: 6px; }
+.watch-subtitle { font-size: 0.875rem; color: var(--text-muted); margin-bottom: 16px; }
+.watch-ep-nav { display: flex; gap: 10px; }
+.ep-nav-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 18px; border-radius: 8px; font-size: 0.85rem; font-weight: 600;
+  border: 1px solid var(--border); color: var(--text-muted); transition: var(--transition);
+}
+.ep-nav-btn:hover, .ep-nav-btn.primary {
+  background: var(--accent); color: #fff; border-color: var(--accent);
+}
+.ep-nav-btn svg { width: 14px; height: 14px; fill: currentColor; }
+
+/* Sidebar episode list */
+.watch-sidebar {}
+.sidebar-header {
+  padding: 0 0 12px; border-bottom: 1px solid var(--border); margin-bottom: 12px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.sidebar-title { font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 700; }
+.sidebar-eps {
+  max-height: calc(100vh - 300px); overflow-y: auto;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.sidebar-ep {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 8px;
+  cursor: pointer; transition: var(--transition);
+  border: 1px solid transparent;
+}
+.sidebar-ep:hover { background: rgba(157,78,221,0.12); border-color: var(--border); }
+.sidebar-ep.active { background: rgba(157,78,221,0.2); border-color: var(--accent); }
+.ep-num {
+  width: 36px; height: 36px; border-radius: 8px; flex-shrink: 0;
+  background: rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 700; color: var(--text-muted);
+}
+.sidebar-ep.active .ep-num { background: var(--accent); color: #fff; }
+.ep-info .ep-title { font-size: 0.85rem; font-weight: 600; }
+.ep-info .ep-meta { font-size: 0.75rem; color: var(--text-muted); }
+
+/* ─── Favorites Page ─────────────────────────────────────────── */
+.page-header {
+  padding: 32px 20px 24px; max-width: 1400px; margin: 0 auto;
+  display: flex; align-items: center; gap: 16px;
+}
+.page-icon {
+  width: 48px; height: 48px; border-radius: 12px;
+  background: rgba(157,78,221,0.2); display: flex; align-items: center; justify-content: center;
+}
+.page-icon svg { width: 24px; height: 24px; fill: var(--accent2); }
+.page-title-block h1 { font-family: 'Rajdhani', sans-serif; font-size: 1.8rem; font-weight: 700; }
+.page-title-block p { font-size: 0.875rem; color: var(--text-muted); margin-top: 3px; }
+
+/* Empty state */
+.empty-state {
+  text-align: center; padding: 60px 20px;
+}
+.empty-state svg {
+  width: 80px; height: 80px; fill: var(--text-dim); margin: 0 auto 16px;
+}
+.empty-state h3 { font-size: 1.2rem; margin-bottom: 8px; color: var(--text-muted); }
+.empty-state p { font-size: 0.875rem; color: var(--text-dim); }
+
+/* ─── Toast Notification ─────────────────────────────────────── */
+#toast-container {
+  position: fixed; bottom: 80px; right: 20px; z-index: 9000;
+  display: flex; flex-direction: column; gap: 8px;
+  pointer-events: none;
+}
+.toast {
+  background: var(--bg-secondary); border: 1px solid var(--border);
+  border-radius: 10px; padding: 12px 18px;
+  font-size: 0.875rem; font-weight: 600;
+  display: flex; align-items: center; gap: 10px;
+  animation: slideIn 0.3s ease, fadeOut 0.3s ease 2.7s forwards;
+  box-shadow: var(--shadow-card);
+}
+.toast.success { border-color: rgba(46,213,115,0.4); }
+.toast.success svg { fill: var(--green); }
+.toast.error { border-color: rgba(255,71,87,0.4); }
+.toast.error svg { fill: var(--red); }
+.toast svg { width: 16px; height: 16px; flex-shrink: 0; }
+@keyframes fadeOut { to { opacity: 0; transform: translateX(20px); } }
+
+/* ─── Mobile Bottom Nav ──────────────────────────────────────── */
+#bottom-nav {
+  display: none; position: fixed; bottom: 0; left: 0; right: 0; z-index: 900;
+  background: rgba(6,2,15,0.97); backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border); height: 60px;
+  justify-content: space-around; align-items: center;
+  padding: 0 8px;
+}
+.bnav-item {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px; flex: 1; height: 100%; transition: var(--transition);
+  color: var(--text-dim); font-size: 0.6rem; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.bnav-item svg { width: 22px; height: 22px; fill: currentColor; }
+.bnav-item.active { color: var(--accent2); }
+.bnav-item.active svg { filter: drop-shadow(0 0 8px rgba(157,78,221,0.8)); }
+
+/* Home button in center */
+.bnav-home {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), #6a0dad);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 20px rgba(157,78,221,0.5);
+  transition: var(--transition);
+}
+.bnav-home:hover { transform: scale(1.1); }
+.bnav-home svg { width: 24px; height: 24px; fill: #fff; }
+
+/* ─── Admin Badge ────────────────────────────────────────────── */
+.admin-link { font-size: 0.72rem !important; color: var(--text-dim) !important; }
+
+/* ─── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .watch-layout { grid-template-columns: 1fr; }
+  .watch-sidebar { max-height: 400px; }
+  .sidebar-eps { max-height: 320px; }
+}
+@media (max-width: 768px) {
+  .nav-links { display: none; }
+  .hamburger { display: flex; }
+  .nav-search input { width: 150px; }
+  .nav-search input:focus { width: 180px; }
+  #bottom-nav { display: flex; }
+  #main { padding-bottom: 70px; }
+  .hero-content { padding: 0 16px; bottom: 40px; }
+  .hero-arrow { display: none; }
+  .anime-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+  .details-poster { width: 140px; }
+  .details-title { font-size: 1.5rem; }
+  #toast-container { bottom: 70px; right: 12px; left: 12px; }
+  .watch-layout { padding: 12px; }
+  .btn-watch { padding: 10px 20px; font-size: 0.875rem; }
+}
+@media (max-width: 480px) {
+  .anime-row .anime-card { flex: 0 0 130px; }
+  .hero-title { font-size: 1.5rem; }
+  .hero-desc { display: none; }
+  .hero-actions { gap: 8px; }
+  .anime-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0 12px; }
+  .section-header { padding: 0 12px; }
+}
+
+/* ─── Trending Page Rank ─────────────────────────────────────── */
+.rank-badge {
+  position: absolute; top: 0; left: 0; z-index: 3;
+  font-family: 'Rajdhani', sans-serif; font-size: 2rem; font-weight: 900;
+  color: rgba(255,255,255,0.06); line-height: 1;
+  padding: 2px 8px;
+}
+.rank-1 { color: rgba(255,215,0,0.15); font-size: 2.5rem; }
+.rank-2 { color: rgba(192,192,192,0.12); }
+.rank-3 { color: rgba(205,127,50,0.12); }
+
+/* ─── Neon divider ────────────────────────────────────────────── */
+.neon-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+  margin: 40px auto; max-width: 800px; opacity: 0.4;
+}
+</style>
+</head>
+<body>
+
+<!-- Page Loader -->
+<div id="page-loader">
+  <div class="loader-logo">MAIM ANIMEX</div>
+  <div class="loader-spinner"></div>
+</div>
+
+<!-- Announcement Bar -->
+<div id="announcement-bar" class="hidden">
+  <span id="announcement-text"></span>
+  <button onclick="document.getElementById('announcement-bar').classList.add('hidden')">✕</button>
+</div>
+
+<!-- Navigation -->
+<nav id="nav">
+  <div class="nav-inner">
+    <div class="nav-logo" onclick="showPage('home')" style="cursor:pointer">
+      MAIM <span>ANIMEX</span>
+    </div>
+
+    <div class="nav-links">
+      <a href="#" onclick="showPage('home')" data-page="home" class="active">
+        <svg viewBox="0 0 24 24" style="display:inline;width:14px;height:14px;fill:currentColor;margin-right:4px"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        Home
+      </a>
+      <a href="#" onclick="showPage('trending')" data-page="trending">
+        <svg viewBox="0 0 24 24" style="display:inline;width:14px;height:14px;fill:currentColor;margin-right:4px"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
+        Trending
+      </a>
+      <a href="#" onclick="showPage('recent')" data-page="recent">
+        <svg viewBox="0 0 24 24" style="display:inline;width:14px;height:14px;fill:currentColor;margin-right:4px"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+        Recent
+      </a>
+      <a href="#" onclick="showPage('hindi')" data-page="hindi">
+        <svg viewBox="0 0 24 24" style="display:inline;width:14px;height:14px;fill:currentColor;margin-right:4px"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+        Hindi Dub
+      </a>
+      <a href="#" onclick="showPage('favorites')" data-page="favorites">
+        <svg viewBox="0 0 24 24" style="display:inline;width:14px;height:14px;fill:currentColor;margin-right:4px"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        Favorites
+      </a>
+      <a href="#" onclick="showPage('continue')" data-page="continue">
+        <svg viewBox="0 0 24 24" style="display:inline;width:14px;height:14px;fill:currentColor;margin-right:4px"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l6 4.5-6 4.5z"/></svg>
+        Continue
+      </a>
+      <a href="/admin/dashboard.html" class="admin-link">Admin</a>
+    </div>
+
+    <div class="nav-right">
+      <div class="nav-search">
+        <svg class="search-icon" viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <input type="text" id="nav-search-input" placeholder="Search anime..." autocomplete="off">
+        <div id="search-dropdown" class="hidden"></div>
+      </div>
+
+      <button class="nav-icon-btn" onclick="showPage('favorites')" title="Favorites">
+        <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        <div class="notif-badge" id="fav-count" style="display:none">0</div>
+      </button>
+
+      <button class="hamburger" id="hamburger-btn" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile Nav -->
+<div id="mobile-nav">
+  <a href="#" onclick="showPage('home');closeMobileNav()">
+    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg> Home
+  </a>
+  <a href="#" onclick="showPage('trending');closeMobileNav()">
+    <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg> Trending
+  </a>
+  <a href="#" onclick="showPage('recent');closeMobileNav()">
+    <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg> Recently Added
+  </a>
+  <a href="#" onclick="showPage('hindi');closeMobileNav()">
+    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg> Hindi Dub
+  </a>
+  <a href="#" onclick="showPage('favorites');closeMobileNav()">
+    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> Favorites
+  </a>
+  <a href="#" onclick="showPage('continue');closeMobileNav()">
+    <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l6 4.5-6 4.5z"/></svg> Continue Watching
+  </a>
+  <a href="/admin/dashboard.html">
+    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg> Admin
+  </a>
+  <input class="mobile-search" type="text" placeholder="Search anime..." oninput="handleMobileSearch(this.value)">
+</div>
+
+<!-- Main Content -->
+<div id="main">
+
+  <!-- ── HOME PAGE ───────────────────────────────────────── -->
+  <div id="home-page" class="page active">
+
+    <!-- Hero Slider -->
+    <div id="hero">
+      <div class="hero-arrow" id="hero-prev" onclick="slideHero(-1)">
+        <svg viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>
+      </div>
+      <div id="hero-slides"></div>
+      <div class="hero-dots" id="hero-dots"></div>
+      <div class="hero-arrow" id="hero-next" onclick="slideHero(1)">
+        <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+      </div>
+    </div>
+
+    <!-- Genres Bar -->
+    <section class="section" style="padding-top:0">
+      <div class="genres-bar" id="genres-bar">
+        <div class="genre-chip active" onclick="filterGenre('all')">All</div>
+        <div class="genre-chip" onclick="filterGenre('action')">Action</div>
+        <div class="genre-chip" onclick="filterGenre('romance')">Romance</div>
+        <div class="genre-chip" onclick="filterGenre('fantasy')">Fantasy</div>
+        <div class="genre-chip" onclick="filterGenre('adventure')">Adventure</div>
+        <div class="genre-chip" onclick="filterGenre('comedy')">Comedy</div>
+        <div class="genre-chip" onclick="filterGenre('drama')">Drama</div>
+        <div class="genre-chip" onclick="filterGenre('supernatural')">Supernatural</div>
+        <div class="genre-chip" onclick="filterGenre('sci-fi')">Sci-Fi</div>
+        <div class="genre-chip" onclick="filterGenre('slice-of-life')">Slice of Life</div>
+        <div class="genre-chip" onclick="filterGenre('mystery')">Mystery</div>
+        <div class="genre-chip" onclick="filterGenre('horror')">Horror</div>
+        <div class="genre-chip" onclick="filterGenre('sports')">Sports</div>
+        <div class="genre-chip" onclick="filterGenre('mecha')">Mecha</div>
+      </div>
+    </section>
+
+    <!-- Continue Watching -->
+    <section class="section" id="continue-section" style="display:none">
+      <div class="section-header">
+        <h2 class="section-title">Continue Watching</h2>
+        <a href="#" class="section-link" onclick="showPage('continue')">
+          See all <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+        </a>
+      </div>
+      <div class="anime-row" id="continue-row"></div>
+    </section>
+
+    <!-- Trending -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">🔥 Trending</h2>
+        <a href="#" class="section-link" onclick="showPage('trending')">
+          See all <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+        </a>
+      </div>
+      <div class="anime-row" id="trending-row">
+        <div class="anime-card skeleton" style="flex:0 0 160px;height:260px"></div>
+        <div class="anime-card skeleton" style="flex:0 0 160px;height:260px"></div>
+        <div class="anime-card skeleton" style="flex:0 0 160px;height:260px"></div>
+        <div class="anime-card skeleton" style="flex:0 0 160px;height:260px"></div>
+        <div class="anime-card skeleton" style="flex:0 0 160px;height:260px"></div>
+      </div>
+    </section>
+
+    <!-- Hindi Dubbed -->
+    <section class="section" id="hindi-section">
+      <div class="section-header">
+        <h2 class="section-title">
+          <svg viewBox="0 0 24 24" style="width:20px;height:20px;fill:var(--red);flex-shrink:0"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+          Hindi Dubbed
+        </h2>
+        <a href="#" class="section-link" onclick="showPage('hindi')">
+          See all <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+        </a>
+      </div>
+      <div class="anime-row" id="hindi-row">
+        <div class="anime-card skeleton" style="flex:0 0 160px;height:260px"></div>
+        <div class="anime-card skeleton" style="flex:0 0 160px;height:260px"></div>
+        <div class="anime-card skeleton" style="flex:0 0 160px;height:260px"></div>
+      </div>
+    </section>
+
+    <!-- Recently Added -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">Recently Added</h2>
+        <a href="#" class="section-link" onclick="showPage('recent')">
+          See all <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+        </a>
+      </div>
+      <div class="anime-row" id="recent-row">
+        <div class="anime-card skeleton" style="flex:0 0 160px;height:260px"></div>
+        <div class="anime-card skeleton" style="flex:0 0 160px;height:260px"></div>
+        <div class="anime-card skeleton" style="flex:0 0 160px;height:260px"></div>
+        <div class="anime-card skeleton" style="flex:0 0 160px;height:260px"></div>
+        <div class="anime-card skeleton" style="flex:0 0 160px;height:260px"></div>
+      </div>
+    </section>
+
+    <!-- Popular -->
+    <section class="section">
+      <div class="section-header">
+        <h2 class="section-title">⭐ Popular</h2>
+      </div>
+      <div class="anime-row" id="popular-row">
+        <div class="anime-card skeleton" style="flex:0 0 160px;height:260px"></div>
+        <div class="anime-card skeleton" style="flex:0 0 160px;height:260px"></div>
+        <div class="anime-card skeleton" style="flex:0 0 160px;height:260px"></div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer style="padding:40px 20px;text-align:center;border-top:1px solid var(--border);color:var(--text-dim);font-size:0.8rem;margin-top:20px">
+      <div style="font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700;color:var(--accent2);margin-bottom:8px">MAIM ANIMEX</div>
+      <p>Premium Anime Streaming Platform</p>
+      <p style="margin-top:8px">Developer: <strong style="color:var(--text-muted)">XT Maim</strong> &nbsp;|&nbsp;
+        <a href="mailto:xtmaim28@gmail.com" style="color:var(--accent2)">xtmaim28@gmail.com</a> &nbsp;|&nbsp;
+        <a href="https://wa.me/8801833515655" style="color:var(--green)">WhatsApp: 01833515655</a>
+      </p>
+      <p style="margin-top:16px;color:var(--text-dim)">© 2024 Maim Animex. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <!-- ── ANIME DETAILS PAGE ──────────────────────────────── -->
+  <div id="anime-details-page" class="page">
+    <div class="details-banner">
+      <img id="details-banner-img" src="" alt="" onerror="this.src='https://placehold.co/1400x340/1a0a2e/9d4edd?text=Maim+Animex'">
+    </div>
+    <div class="details-main" id="details-main">
+      <!-- Filled by JS -->
+    </div>
+    <div class="episodes-section">
+      <div class="episodes-header">
+        <h3 class="episodes-title">Episodes</h3>
+        <select class="ep-filter" id="ep-filter" onchange="filterEps(this.value)">
+          <option value="all">All Episodes</option>
+          <option value="1-50">1–50</option>
+          <option value="51-100">51–100</option>
+          <option value="101-150">101–150</option>
+        </select>
+      </div>
+      <div class="episodes-grid" id="episodes-grid"></div>
+    </div>
+    <div class="related-section">
+      <h3 class="episodes-title" style="margin-bottom:16px">Related Anime</h3>
+      <div class="anime-row" id="related-row"></div>
+    </div>
+  </div>
+
+  <!-- ── WATCH PAGE ──────────────────────────────────────── -->
+  <div id="watch-page" class="page">
+    <div class="watch-layout">
+      <div>
+        <div class="player-container">
+          <div class="player-wrapper">
+            <video id="video-player" controls crossorigin="anonymous" style="display:none"></video>
+            <iframe id="player-iframe" allowfullscreen allow="autoplay; fullscreen"></iframe>
+            <div class="player-overlay"></div>
+          </div>
+          <div class="player-controls" style="display:none" id="custom-controls">
+            <div class="progress-bar" id="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+            <div class="controls-row">
+              <button class="ctrl-btn" onclick="togglePlay()">
+                <svg id="play-icon" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+              <button class="ctrl-btn" onclick="skipTime(-10)">
+                <svg viewBox="0 0 24 24"><path d="M11.5 5C7.36 5 4 8.36 4 12.5S7.36 20 11.5 20c3.65 0 6.71-2.49 7.31-6h-2.08c-.56 2.28-2.62 4-5.23 4-2.9 0-5.27-2.37-5.27-5.27S8.6 7.46 11.5 7.46c1.46 0 2.77.6 3.73 1.55l-2.85 2.85H18V6.64l-2.27 2.27C14.42 7.46 13.04 5 11.5 5z"/></svg>
+              </button>
+              <button class="ctrl-btn" onclick="skipTime(10)">
+                <svg viewBox="0 0 24 24"><path d="M18 13c0 3.31-2.69 6-6 6s-6-2.69-6-6 2.69-6 6-6v4l5-5-5-5v4c-4.42 0-8 3.58-8 8s3.58 8 8 8 8-3.58 8-8h-2z"/></svg>
+              </button>
+              <span class="time-display" id="time-display">0:00 / 0:00</span>
+              <input type="range" class="vol-slider" id="vol-slider" min="0" max="1" step="0.05" value="1" oninput="setVolume(this.value)">
+              <button class="skip-btn" id="skip-btn" onclick="skipIntro()">Skip Intro ⏭</button>
+              <button class="ctrl-btn" onclick="toggleFullscreen()">
+                <svg viewBox="0 0 24 24"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="watch-info">
+          <h1 class="watch-title" id="watch-title">Loading...</h1>
+          <p class="watch-subtitle" id="watch-subtitle"></p>
+          <div class="watch-ep-nav">
+            <button class="ep-nav-btn" id="prev-ep-btn" onclick="navigateEpisode(-1)">
+              <svg viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg> Prev
+            </button>
+            <button class="ep-nav-btn primary" id="next-ep-btn" onclick="navigateEpisode(1)">
+              Next <svg viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="watch-sidebar">
+        <div class="sidebar-header">
+          <h3 class="sidebar-title" id="sidebar-anime-title">Episodes</h3>
+        </div>
+        <div class="sidebar-eps" id="sidebar-eps"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── HINDI DUB PAGE ─────────────────────────────────── -->
+  <div id="hindi-page" class="page">
+    <div class="page-header">
+      <div class="page-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+      </div>
+      <div class="page-title-block">
+        <h1>Hindi Dubbed Anime</h1>
+        <p>Watch your favourite anime in Hindi</p>
+      </div>
+    </div>
+    <div class="anime-grid large" id="hindi-grid">
+      <div class="anime-card skeleton" style="height:280px"></div>
+      <div class="anime-card skeleton" style="height:280px"></div>
+      <div class="anime-card skeleton" style="height:280px"></div>
+      <div class="anime-card skeleton" style="height:280px"></div>
+    </div>
+    <div style="text-align:center;padding:24px 20px" id="hindi-load-more">
+      <button class="btn-outline" onclick="loadMoreHindi()">Load More</button>
+    </div>
+  </div>
+
+  <!-- ── TRENDING PAGE ─────────────────────────────────── -->
+  <div id="trending-page" class="page">
+    <div class="page-header">
+      <div class="page-icon">
+        <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
+      </div>
+      <div class="page-title-block">
+        <h1>Trending Anime</h1>
+        <p>Most popular right now</p>
+      </div>
+    </div>
+    <div class="anime-grid large" id="trending-grid">
+      <div class="anime-card skeleton" style="height:280px"></div>
+      <div class="anime-card skeleton" style="height:280px"></div>
+      <div class="anime-card skeleton" style="height:280px"></div>
+      <div class="anime-card skeleton" style="height:280px"></div>
+    </div>
+  </div>
+
+  <!-- ── RECENT PAGE ────────────────────────────────────── -->
+  <div id="recent-page" class="page">
+    <div class="page-header">
+      <div class="page-icon">
+        <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67V7z"/></svg>
+      </div>
+      <div class="page-title-block">
+        <h1>Recently Added</h1>
+        <p>Latest episodes and series</p>
+      </div>
+    </div>
+    <div class="anime-grid large" id="recent-grid">
+      <div class="anime-card skeleton" style="height:280px"></div>
+      <div class="anime-card skeleton" style="height:280px"></div>
+      <div class="anime-card skeleton" style="height:280px"></div>
+      <div class="anime-card skeleton" style="height:280px"></div>
+    </div>
+    <div style="text-align:center;padding:24px 20px">
+      <button class="btn-outline" onclick="loadMoreRecent()">Load More</button>
+    </div>
+  </div>
+
+  <!-- ── FAVORITES PAGE ────────────────────────────────── -->
+  <div id="favorites-page" class="page">
+    <div class="page-header">
+      <div class="page-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+      </div>
+      <div class="page-title-block">
+        <h1>My Favorites</h1>
+        <p>Your bookmarked anime collection</p>
+      </div>
+    </div>
+    <div class="anime-grid large" id="favorites-grid"></div>
+    <div class="empty-state hidden" id="favorites-empty">
+      <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+      <h3>No favorites yet</h3>
+      <p>Start adding anime to your favorites!</p>
+    </div>
+  </div>
+
+  <!-- ── CONTINUE WATCHING PAGE ────────────────────────── -->
+  <div id="continue-page" class="page">
+    <div class="page-header">
+      <div class="page-icon">
+        <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l6 4.5-6 4.5z"/></svg>
+      </div>
+      <div class="page-title-block">
+        <h1>Continue Watching</h1>
+        <p>Pick up where you left off</p>
+      </div>
+    </div>
+    <div class="anime-grid large" id="continue-grid"></div>
+    <div class="empty-state hidden" id="continue-empty">
+      <svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l6 4.5-6 4.5z"/></svg>
+      <h3>Nothing to continue</h3>
+      <p>Start watching anime to see your progress here.</p>
+    </div>
+  </div>
+
+  <!-- ── GENRE PAGE ─────────────────────────────────────── -->
+  <div id="genre-page" class="page">
+    <div class="page-header">
+      <div class="page-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      </div>
+      <div class="page-title-block">
+        <h1 id="genre-page-title">Genre</h1>
+        <p>Browse by category</p>
+      </div>
+    </div>
+    <div class="anime-grid large" id="genre-grid">
+      <div class="anime-card skeleton" style="height:280px"></div>
+      <div class="anime-card skeleton" style="height:280px"></div>
+      <div class="anime-card skeleton" style="height:280px"></div>
+    </div>
+  </div>
+
+</div><!-- end #main -->
+
+<!-- Mobile Bottom Navigation -->
+<nav id="bottom-nav">
+  <button class="bnav-item active" onclick="showPage('home')" data-bnav="home">
+    <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    Home
+  </button>
+  <button class="bnav-item" onclick="showPage('trending')" data-bnav="trending">
+    <svg viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
+    Trending
+  </button>
+  <!-- Home center button -->
+  <button class="bnav-item" onclick="showPage('home')" data-bnav="home-center">
+    <div class="bnav-home">
+      <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+    </div>
+  </button>
+  <button class="bnav-item" onclick="showPage('hindi')" data-bnav="hindi">
+    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+    Hindi
+  </button>
+  <button class="bnav-item" onclick="showPage('favorites')" data-bnav="favorites">
+    <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+    Saved
+  </button>
+</nav>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
+
+<!-- ─────────────────── JavaScript ─────────────────────────────── -->
+<script>
+'use strict';
+
+// ── State ──────────────────────────────────────────────────────────
+const state = {
+  currentPage: 'home',
+  currentAnime: null,
+  currentEpisode: null,
+  currentEpisodeIndex: 0,
+  episodes: [],
+  heroSlides: [],
+  heroIndex: 0,
+  heroTimer: null,
+  favorites: JSON.parse(localStorage.getItem('animex_favs') || '[]'),
+  continueWatching: JSON.parse(localStorage.getItem('animex_continue') || '[]'),
+  hindiPage: 1,
+  recentPage: 1,
+  searchTimeout: null
+};
+
+// ── API Base ───────────────────────────────────────────────────────
+const API = '/api';
+
+// ── Fetch Helper ───────────────────────────────────────────────────
+async function apiFetch(path) {
+  try {
+    const res = await fetch(API + path);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.json();
+  } catch (e) {
+    console.error('[API]', path, e.message);
+    return null;
+  }
+}
+
+// ── Toast ──────────────────────────────────────────────────────────
+function showToast(msg, type = 'success') {
+  const icons = {
+    success: '<svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>',
+    error:   '<svg viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>',
+    info:    '<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>'
+  };
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.innerHTML = `${icons[type]||icons.info} ${msg}`;
+  document.getElementById('toast-container').appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+
+// ── Page Navigation ────────────────────────────────────────────────
+function showPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById(`${name}-page`).classList.add('active');
+  state.currentPage = name;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Update nav active states
+  document.querySelectorAll('.nav-links a[data-page]').forEach(a => {
+    a.classList.toggle('active', a.dataset.page === name);
+  });
+  document.querySelectorAll('.bnav-item[data-bnav]').forEach(b => {
+    b.classList.toggle('active', b.dataset.bnav === name);
+  });
+
+  // Load data on demand
+  if (name === 'trending') loadTrendingPage();
+  if (name === 'recent') loadRecentPage();
+  if (name === 'hindi') loadHindiPage();
+  if (name === 'favorites') renderFavorites();
+  if (name === 'continue') renderContinuePage();
+
+  closeMobileNav();
+}
+
+// ── Mobile Nav ─────────────────────────────────────────────────────
+document.getElementById('hamburger-btn').addEventListener('click', () => {
+  document.getElementById('mobile-nav').classList.toggle('open');
+});
+function closeMobileNav() {
+  document.getElementById('mobile-nav').classList.remove('open');
+}
+
+// ── Anime Card Builder ─────────────────────────────────────────────
+function buildCard(anime, rank) {
+  const isFav = state.favorites.some(f => f.id === anime.id);
+  const rankHtml = rank != null ? `<div class="rank-badge rank-${rank+1}">${rank+1}</div>` : '';
+  return `
+    <div class="anime-card" onclick="openAnime('${escHtml(anime.id)}')">
+      <div class="card-thumb">
+        ${rankHtml}
+        <img src="${escHtml(anime.thumbnail||anime.img||'')}" alt="${escHtml(anime.title)}"
+          loading="lazy"
+          onerror="this.src='https://placehold.co/300x420/1a0a2e/9d4edd?text=${encodeURIComponent(anime.title||'Anime')}'">
+        <div class="card-overlay"></div>
+        <div class="card-play-btn">
+          <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+        </div>
+        ${anime.isHindi ? '<div class="card-badge badge-hindi">HINDI</div>' : ''}
+        ${anime.rating && anime.rating !== 'N/A' ? `<div class="badge-rating"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>${escHtml(anime.rating)}</div>` : ''}
+        ${anime.episodes ? `<div class="badge-ep">EP ${escHtml(String(anime.episodes))}</div>` : ''}
+        <button class="card-fav ${isFav ? 'active' : ''}" onclick="event.stopPropagation();toggleFav(${JSON.stringify(anime)})">
+          <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        </button>
+      </div>
+      <div class="card-info">
+        <div class="card-title">${escHtml(anime.title)}</div>
+        <div class="card-meta">
+          ${anime.type ? `<span class="card-tag">${escHtml(anime.type)}</span>` : ''}
+          ${anime.status ? `<span class="card-tag">${escHtml(anime.status)}</span>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function escHtml(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Open Anime Details ─────────────────────────────────────────────
+async function openAnime(id) {
+  if (!id) return;
+  showPage('anime-details');
+  document.getElementById('details-main').innerHTML = '<div class="skeleton" style="height:300px;border-radius:12px"></div>';
+  document.getElementById('episodes-grid').innerHTML = '<div style="color:var(--text-muted);padding:20px">Loading episodes...</div>';
+
+  const data = await apiFetch(`/anime/${encodeURIComponent(id)}`);
+  if (!data) {
+    document.getElementById('details-main').innerHTML = '<p style="padding:20px;color:var(--text-muted)">Failed to load anime details.</p>';
+    return;
+  }
+
+  state.currentAnime = data;
+  state.episodes = data.episodes || [];
+
+  // Banner
+  document.getElementById('details-banner-img').src = data.poster || data.banner || '';
+
+  // Main section
+  const isFav = state.favorites.some(f => f.id === data.id);
+  document.getElementById('details-main').innerHTML = `
+    <div class="details-poster">
+      <img src="${escHtml(data.poster)}" alt="${escHtml(data.title)}"
+        onerror="this.src='https://placehold.co/200x300/1a0a2e/9d4edd?text=No+Poster'">
+    </div>
+    <div class="details-info fade-in">
+      <h1 class="details-title">${escHtml(data.title)}</h1>
+      <div class="details-meta">
+        ${data.rating !== 'N/A' ? `<span class="meta-tag rating-tag"><svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>${escHtml(data.rating)}</span>` : ''}
+        <span class="meta-tag"><svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-5 14H7v-2h7v2zm3-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>${escHtml(data.status||'Unknown')}</span>
+        <span class="meta-tag"><svg viewBox="0 0 24 24"><path d="M4 6H2v14c0 1.1.9 2 2 2h14v-2H4V6zm16-4H8c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 12.5v-9l6 4.5-6 4.5z"/></svg>${data.totalEpisodes || '?'} Episodes</span>
+        ${data.type ? `<span class="meta-tag">${escHtml(data.type)}</span>` : ''}
+        ${data.isHindi ? '<span class="meta-tag" style="border-color:rgba(255,71,87,0.4);color:var(--red)">Hindi Dub</span>' : ''}
+      </div>
+      <div class="details-genres">
+        ${(data.genres||[]).map(g => `<span class="details-genre-chip" onclick="showGenre('${escHtml(g)}')">${escHtml(g)}</span>`).join('')}
+      </div>
+      <p class="details-desc">${escHtml(data.description||'No description available.')}</p>
+      <div class="details-actions">
+        ${data.episodes && data.episodes.length > 0
+          ? `<button class="btn-watch" onclick="watchEpisode('${escHtml(data.episodes[0].id||data.id)}', 0)">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Watch Now
+             </button>`
+          : `<a href="${escHtml(data.link||'#')}" target="_blank" class="btn-watch">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Watch Now
+             </a>`
+        }
+        <button class="btn-fav ${isFav ? 'active' : ''}" id="details-fav-btn"
+          onclick="toggleFav(${JSON.stringify({id:data.id,title:data.title,thumbnail:data.poster,episodes:data.totalEpisodes,rating:data.rating,type:data.type})})">
+          <svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+          ${isFav ? 'Saved' : 'Add to Favorites'}
+        </button>
+      </div>
+    </div>
+  `;
+
+  // Episodes
+  renderEpisodesGrid(data.episodes || []);
+
+  // Related
+  const relatedEl = document.getElementById('related-row');
+  if (data.related && data.related.length > 0) {
+    relatedEl.innerHTML = data.related.map(a => buildCard(a)).join('');
+  } else {
+    relatedEl.innerHTML = '<p style="color:var(--text-muted);padding:0 20px">No related anime found.</p>';
+  }
+}
+
+function renderEpisodesGrid(eps) {
+  const grid = document.getElementById('episodes-grid');
+  if (!eps.length) {
+    grid.innerHTML = '<p style="color:var(--text-muted)">No episodes found.</p>';
+    return;
+  }
+  grid.innerHTML = eps.map((ep, i) => {
+    const label = ep.number || `EP ${i+1}`;
+    return `<button class="ep-btn" onclick="watchEpisode('${escHtml(ep.id||ep.link)}', ${i})">${escHtml(String(label))}</button>`;
+  }).join('');
+}
+
+// ── Watch Episode ──────────────────────────────────────────────────
+async function watchEpisode(epId, index) {
+  if (!epId) return;
+  showPage('watch');
+  state.currentEpisodeIndex = index;
+
+  document.getElementById('watch-title').textContent = 'Loading...';
+  document.getElementById('player-iframe').src = '';
+  document.getElementById('video-player').src = '';
+
+  const data = await apiFetch(`/episode/${encodeURIComponent(epId)}`);
+
+  if (data) {
+    state.currentEpisode = data;
+    document.getElementById('watch-title').textContent = data.title || 'Anime';
+    document.getElementById('watch-subtitle').textContent = `Episode ${index + 1}`;
+
+    // Try iframe first
+    if (data.iframeSrc) {
+      document.getElementById('player-iframe').src = data.iframeSrc;
+      document.getElementById('player-iframe').style.display = 'block';
+      document.getElementById('video-player').style.display = 'none';
+    } else if (data.watchLinks && data.watchLinks.length > 0) {
+      const m3u8 = data.watchLinks.find(l => l.includes('.m3u8'));
+      const vid = document.getElementById('video-player');
+      if (m3u8 && Hls.isSupported()) {
+        const hls = new Hls();
+        hls.loadSource(m3u8);
+        hls.attachMedia(vid);
+        vid.style.display = 'block';
+        document.getElementById('player-iframe').style.display = 'none';
+        document.getElementById('custom-controls').style.display = 'block';
+        setupVideoControls(vid);
+      } else if (data.watchLinks[0]) {
+        vid.src = data.watchLinks[0];
+        vid.style.display = 'block';
+        document.getElementById('player-iframe').style.display = 'none';
+        document.getElementById('custom-controls').style.display = 'block';
+        setupVideoControls(vid);
+      }
+    }
+  } else {
+    document.getElementById('watch-title').textContent = 'Episode ' + (index+1);
+    document.getElementById('watch-subtitle').textContent = 'Could not load episode data';
+  }
+
+  // Sidebar episodes
+  if (state.currentAnime) {
+    renderSidebarEps(state.currentAnime.episodes || [], index);
+    document.getElementById('sidebar-anime-title').textContent = state.currentAnime.title || 'Episodes';
+  }
+
+  // Save continue watching
+  if (state.currentAnime) {
+    saveProgress(state.currentAnime, index);
+  }
+}
+
+function renderSidebarEps(eps, currentIdx) {
+  const container = document.getElementById('sidebar-eps');
+  container.innerHTML = eps.map((ep, i) => `
+    <div class="sidebar-ep ${i === currentIdx ? 'active' : ''}" onclick="watchEpisode('${escHtml(ep.id||ep.link)}', ${i})">
+      <div class="ep-num">${i+1}</div>
+      <div class="ep-info">
+        <div class="ep-title">${ep.number || `Episode ${i+1}`}</div>
+        <div class="ep-meta">Click to watch</div>
+      </div>
+    </div>
+  `).join('');
+  // Scroll active into view
+  setTimeout(() => {
+    const active = container.querySelector('.sidebar-ep.active');
+    if (active) active.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  }, 200);
+}
+
+function navigateEpisode(dir) {
+  const newIdx = state.currentEpisodeIndex + dir;
+  if (state.episodes[newIdx]) {
+    watchEpisode(state.episodes[newIdx].id || state.episodes[newIdx].link, newIdx);
+  }
+}
+
+// ── Video Controls ─────────────────────────────────────────────────
+function setupVideoControls(vid) {
+  vid.addEventListener('timeupdate', () => {
+    if (!vid.duration) return;
+    const pct = (vid.currentTime / vid.duration) * 100;
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('time-display').textContent =
+      `${fmt(vid.currentTime)} / ${fmt(vid.duration)}`;
+    // Auto-show skip intro in first 90s
+    const skipBtn = document.getElementById('skip-btn');
+    skipBtn.style.display = vid.currentTime < 90 ? 'inline-flex' : 'none';
+  });
+  vid.addEventListener('ended', () => navigateEpisode(1));
+}
+
+function fmt(s) {
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${m}:${sec.toString().padStart(2,'0')}`;
+}
+function togglePlay() {
+  const vid = document.getElementById('video-player');
+  vid.paused ? vid.play() : vid.pause();
+}
+function skipTime(s) {
+  const vid = document.getElementById('video-player');
+  vid.currentTime = Math.max(0, vid.currentTime + s);
+}
+function setVolume(v) {
+  document.getElementById('video-player').volume = parseFloat(v);
+}
+function skipIntro() {
+  const vid = document.getElementById('video-player');
+  vid.currentTime = Math.min(vid.duration, vid.currentTime + 85);
+}
+function toggleFullscreen() {
+  const container = document.querySelector('.player-wrapper');
+  if (!document.fullscreenElement) {
+    container.requestFullscreen?.();
+  } else {
+    document.exitFullscreen?.();
+  }
+}
+
+// ── Continue Watching ──────────────────────────────────────────────
+function saveProgress(anime, epIdx) {
+  const existing = state.continueWatching.findIndex(c => c.id === anime.id);
+  const entry = {
+    id: anime.id, title: anime.title,
+    thumbnail: anime.poster || anime.thumbnail,
+    currentEp: epIdx, totalEps: (anime.episodes||[]).length,
+    progress: 0, updatedAt: Date.now()
+  };
+  if (existing >= 0) state.continueWatching[existing] = entry;
+  else state.continueWatching.unshift(entry);
+  if (state.continueWatching.length > 20) state.continueWatching = state.continueWatching.slice(0,20);
+  localStorage.setItem('animex_continue', JSON.stringify(state.continueWatching));
+  updateContinueSection();
+}
+
+function updateContinueSection() {
+  const row = document.getElementById('continue-row');
+  const section = document.getElementById('continue-section');
+  if (!state.continueWatching.length) { section.style.display='none'; return; }
+  section.style.display = '';
+  row.innerHTML = state.continueWatching.map(c => `
+    <div class="continue-card" onclick="openAnime('${escHtml(c.id)}')">
+      <div class="continue-thumb">
+        <img src="${escHtml(c.thumbnail||'')}"
+          onerror="this.src='https://placehold.co/240x135/1a0a2e/9d4edd?text=Continue'"
+          loading="lazy" alt="${escHtml(c.title)}">
+        <div class="continue-progress"><div class="continue-bar" style="width:${c.progress||20}%"></div></div>
+      </div>
+      <div class="continue-info">
+        <div class="continue-title">${escHtml(c.title)}</div>
+        <div class="continue-ep">Episode ${(c.currentEp||0)+1} of ${c.totalEps||'?'}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── Favorites ──────────────────────────────────────────────────────
+function toggleFav(anime) {
+  const idx = state.favorites.findIndex(f => f.id === anime.id);
+  if (idx >= 0) {
+    state.favorites.splice(idx, 1);
+    showToast('Removed from favorites', 'info');
+  } else {
+    state.favorites.push(anime);
+    showToast('Added to favorites!', 'success');
+  }
+  localStorage.setItem('animex_favs', JSON.stringify(state.favorites));
+  updateFavCount();
+  if (state.currentPage === 'favorites') renderFavorites();
+  // Refresh details fav button
+  const favBtn = document.getElementById('details-fav-btn');
+  if (favBtn) {
+    const isFav = state.favorites.some(f => f.id === anime.id);
+    favBtn.classList.toggle('active', isFav);
+    favBtn.querySelector('svg').nextSibling
+      ? favBtn.innerHTML = `<svg viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg> ${isFav ? 'Saved' : 'Add to Favorites'}` : null;
+  }
+}
+function updateFavCount() {
+  const badge = document.getElementById('fav-count');
+  if (state.favorites.length > 0) {
+    badge.style.display = 'flex';
+    badge.textContent = state.favorites.length;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+function renderFavorites() {
+  const grid = document.getElementById('favorites-grid');
+  const empty = document.getElementById('favorites-empty');
+  if (!state.favorites.length) {
+    grid.innerHTML = '';
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+  grid.innerHTML = state.favorites.map(a => buildCard(a)).join('');
+}
+function renderContinuePage() {
+  const grid = document.getElementById('continue-grid');
+  const empty = document.getElementById('continue-empty');
+  if (!state.continueWatching.length) {
+    grid.innerHTML = ''; empty.classList.remove('hidden'); return;
+  }
+  empty.classList.add('hidden');
+  grid.innerHTML = state.continueWatching.map(c => buildCard({
+    id: c.id, title: c.title, thumbnail: c.thumbnail,
+    episodes: `${(c.currentEp||0)+1}/${c.totalEps||'?'}`, type: 'Watching'
+  })).join('');
+}
+
+// ── Hero Slider ────────────────────────────────────────────────────
+function renderHero(slides) {
+  if (!slides || !slides.length) return;
+  state.heroSlides = slides;
+  const container = document.getElementById('hero-slides');
+  const dotsEl = document.getElementById('hero-dots');
+
+  container.innerHTML = slides.map((s, i) => `
+    <div class="hero-slide ${i===0?'active':''}">
+      <img class="hero-bg" src="${escHtml(s.img||s.thumbnail||'')}" alt="${escHtml(s.title)}"
+        onerror="this.src='https://placehold.co/1400x560/1a0a2e/9d4edd?text=Maim+Animex'">
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <div class="hero-badge">
+          <svg viewBox="0 0 24 24" style="width:12px;height:12px;fill:currentColor"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+          Featured
+        </div>
+        <h2 class="hero-title">${escHtml(s.title)}</h2>
+        <p class="hero-desc">${escHtml(s.desc||s.description||'Watch now on Maim Animex')}</p>
+        <div class="hero-actions">
+          <button class="btn-watch" onclick="openAnime('${escHtml(s.id||s.link)}')">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg> Watch Now
+          </button>
+          <button class="btn-outline" onclick="openAnime('${escHtml(s.id||s.link)}')">
+            <svg viewBox="0 0 24 24"><path d="M11 17h2v-6h-2v6zm1-15C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zM11 9h2V7h-2v2z"/></svg> Details
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+
+  dotsEl.innerHTML = slides.map((_, i) =>
+    `<div class="hero-dot ${i===0?'active':''}" onclick="goToSlide(${i})"></div>`
+  ).join('');
+
+  startHeroTimer();
+}
+
+function goToSlide(idx) {
+  document.querySelectorAll('.hero-slide').forEach((s,i) => s.classList.toggle('active', i===idx));
+  document.querySelectorAll('.hero-dot').forEach((d,i) => d.classList.toggle('active', i===idx));
+  state.heroIndex = idx;
+}
+function slideHero(dir) {
+  const len = state.heroSlides.length;
+  if (!len) return;
+  const next = (state.heroIndex + dir + len) % len;
+  goToSlide(next);
+  resetHeroTimer();
+}
+function startHeroTimer() {
+  if (state.heroTimer) clearInterval(state.heroTimer);
+  state.heroTimer = setInterval(() => slideHero(1), 5000);
+}
+function resetHeroTimer() { startHeroTimer(); }
+
+// ── Search ─────────────────────────────────────────────────────────
+const searchInput = document.getElementById('nav-search-input');
+const searchDropdown = document.getElementById('search-dropdown');
+
+searchInput.addEventListener('input', () => {
+  clearTimeout(state.searchTimeout);
+  const q = searchInput.value.trim();
+  if (q.length < 2) { searchDropdown.classList.add('hidden'); return; }
+  searchDropdown.classList.remove('hidden');
+  searchDropdown.innerHTML = '<div class="search-loading">Searching...</div>';
+  state.searchTimeout = setTimeout(() => performSearch(q), 400);
+});
+
+searchInput.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { searchDropdown.classList.add('hidden'); searchInput.blur(); }
+});
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('.nav-search')) searchDropdown.classList.add('hidden');
+});
+
+async function performSearch(q) {
+  const data = await apiFetch(`/search?q=${encodeURIComponent(q)}`);
+  if (!data || !data.results || !data.results.length) {
+    searchDropdown.innerHTML = '<div class="search-loading">No results found.</div>';
+    return;
+  }
+  searchDropdown.innerHTML = data.results.slice(0,8).map(a => `
+    <div class="search-result-item" onclick="openAnime('${escHtml(a.id)}');searchDropdown.classList.add('hidden')">
+      <img src="${escHtml(a.thumbnail||'')}" alt="${escHtml(a.title)}"
+        onerror="this.src='https://placehold.co/40x56/1a0a2e/9d4edd?text=?'">
+      <div class="search-result-info">
+        <div class="title">${escHtml(a.title)}</div>
+        <div class="meta">${escHtml(a.type||'')} ${a.episodes ? `• EP ${escHtml(String(a.episodes))}` : ''}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function handleMobileSearch(val) {
+  clearTimeout(state.searchTimeout);
+  if (val.trim().length < 2) return;
+  state.searchTimeout = setTimeout(() => {
+    performSearch(val.trim());
+    searchDropdown.classList.remove('hidden');
+  }, 500);
+}
+
+// ── Genre ──────────────────────────────────────────────────────────
+async function showGenre(genre) {
+  document.getElementById('genre-page-title').textContent = genre.charAt(0).toUpperCase() + genre.slice(1);
+  showPage('genre');
+  document.getElementById('genre-grid').innerHTML = '<div class="anime-card skeleton" style="height:280px"></div>'.repeat(4);
+  const data = await apiFetch(`/genre/${encodeURIComponent(genre)}`);
+  const grid = document.getElementById('genre-grid');
+  if (data && data.results && data.results.length) {
+    grid.innerHTML = data.results.map(a => buildCard(a)).join('');
+  } else {
+    grid.innerHTML = '<p style="padding:20px;color:var(--text-muted)">No anime found for this genre.</p>';
+  }
+}
+
+function filterGenre(genre) {
+  document.querySelectorAll('.genre-chip').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+  if (genre !== 'all') showGenre(genre);
+}
+
+// ── Page Loaders ───────────────────────────────────────────────────
+async function loadTrendingPage() {
+  if (document.getElementById('trending-grid').querySelector('.anime-card:not(.skeleton)')) return;
+  const data = await apiFetch('/trending');
+  const grid = document.getElementById('trending-grid');
+  if (data && data.results && data.results.length) {
+    grid.innerHTML = data.results.map((a,i) => buildCard(a, i)).join('');
+  } else {
+    grid.innerHTML = '<p style="padding:20px;color:var(--text-muted)">Could not load trending anime.</p>';
+  }
+}
+
+async function loadRecentPage() {
+  if (document.getElementById('recent-grid').querySelector('.anime-card:not(.skeleton)')) return;
+  const data = await apiFetch('/recent');
+  const grid = document.getElementById('recent-grid');
+  if (data && data.results && data.results.length) {
+    grid.innerHTML = data.results.map(a => buildCard(a)).join('');
+  } else {
+    grid.innerHTML = '<p style="padding:20px;color:var(--text-muted)">Could not load recent anime.</p>';
+  }
+}
+
+async function loadHindiPage() {
+  if (document.getElementById('hindi-grid').querySelector('.anime-card:not(.skeleton)')) return;
+  const data = await apiFetch('/hindi-dub');
+  const grid = document.getElementById('hindi-grid');
+  if (data && data.results && data.results.length) {
+    grid.innerHTML = data.results.map(a => buildCard(a)).join('');
+  } else {
+    grid.innerHTML = '<p style="padding:20px;color:var(--text-muted)">No Hindi dubbed anime found. Try the search feature.</p>';
+  }
+}
+
+async function loadMoreHindi() {
+  state.hindiPage++;
+  const data = await apiFetch(`/hindi-dub?page=${state.hindiPage}`);
+  if (data && data.results && data.results.length) {
+    document.getElementById('hindi-grid').insertAdjacentHTML('beforeend', data.results.map(a=>buildCard(a)).join(''));
+  }
+}
+
+async function loadMoreRecent() {
+  state.recentPage++;
+  const data = await apiFetch(`/recent?page=${state.recentPage}`);
+  if (data && data.results && data.results.length) {
+    document.getElementById('recent-grid').insertAdjacentHTML('beforeend', data.results.map(a=>buildCard(a)).join(''));
+  }
+}
+
+function filterEps(val) {
+  // Filter episode buttons by range
+  const btns = document.querySelectorAll('#episodes-grid .ep-btn');
+  btns.forEach((btn, i) => {
+    if (val === 'all') { btn.style.display = ''; return; }
+    const [from, to] = val.split('-').map(Number);
+    btn.style.display = (i+1 >= from && i+1 <= to) ? '' : 'none';
+  });
+}
+
+// ── Home Data Load ─────────────────────────────────────────────────
+async function loadHomeData() {
+  const data = await apiFetch('/home');
+  if (!data) {
+    console.warn('[Home] No data from API');
+    return;
+  }
+
+  // Announcement
+  if (data.announcements && data.announcements.length) {
+    const bar = document.getElementById('announcement-bar');
+    document.getElementById('announcement-text').textContent = data.announcements[0].text;
+    bar.classList.remove('hidden');
+  }
+
+  // Hero
+  const heroItems = [
+    ...(data.manualFeatured || []),
+    ...(data.featured || []),
+    ...(data.trending || []).slice(0,3)
+  ].filter(Boolean).slice(0,6);
+  renderHero(heroItems);
+
+  // Trending row
+  if (data.trending && data.trending.length) {
+    document.getElementById('trending-row').innerHTML = data.trending.map(a=>buildCard(a)).join('');
+  }
+
+  // Recent row
+  if (data.recent && data.recent.length) {
+    document.getElementById('recent-row').innerHTML = data.recent.map(a=>buildCard(a)).join('');
+  }
+
+  // Popular row
+  if (data.popular && data.popular.length) {
+    document.getElementById('popular-row').innerHTML = data.popular.map(a=>buildCard(a)).join('');
+  }
+
+  // Load Hindi row separately
+  loadHindiRowData();
+}
+
+async function loadHindiRowData() {
+  const data = await apiFetch('/hindi-dub');
+  if (data && data.results && data.results.length) {
+    document.getElementById('hindi-row').innerHTML = data.results.slice(0,8).map(a=>buildCard(a)).join('');
+  }
+}
+
+// ── Init ───────────────────────────────────────────────────────────
+async function init() {
+  updateFavCount();
+  updateContinueSection();
+
+  // Hide loader
+  await loadHomeData();
+
+  setTimeout(() => {
+    const loader = document.getElementById('page-loader');
+    loader.style.opacity = '0';
+    setTimeout(() => loader.style.display = 'none', 500);
+  }, 800);
+}
+
+// Start
+init();
+</script>
+</body>
+</html>

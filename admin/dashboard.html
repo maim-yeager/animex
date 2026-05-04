@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard – Maim Animex</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Exo+2:wght@300;400;600;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #06020f;
+  --bg2: #0d0520;
+  --card: #110825;
+  --accent: #9d4edd;
+  --accent2: #c77dff;
+  --red: #ff4757;
+  --green: #2ed573;
+  --gold: #ffd700;
+  --blue: #1e90ff;
+  --text: #e8e0f0;
+  --muted: #8b7aa8;
+  --border: rgba(157,78,221,0.25);
+  --radius: 12px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+a{color:inherit;text-decoration:none}
+button{cursor:pointer;border:none;font-family:inherit}
+input,select,textarea{font-family:inherit;outline:none;background:rgba(255,255,255,0.06);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:10px 14px;width:100%}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(157,78,221,0.15)}
+textarea{resize:vertical;min-height:80px}
+
+/* Login */
+#login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse 80% 50% at 50% 0%,rgba(157,78,221,0.1),transparent)}
+.login-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:48px 40px;width:100%;max-width:400px;text-align:center}
+.login-logo{font-family:'Rajdhani',sans-serif;font-size:2rem;font-weight:700;background:linear-gradient(135deg,#fff,var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:6px}
+.login-sub{color:var(--muted);font-size:0.875rem;margin-bottom:32px}
+.login-field{margin-bottom:16px;text-align:left}
+.login-field label{display:block;font-size:0.8rem;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
+.btn-login{width:100%;padding:13px;border-radius:10px;background:var(--accent);color:#fff;font-size:1rem;font-weight:700;margin-top:8px;transition:all 0.3s}
+.btn-login:hover{background:var(--accent2);transform:translateY(-2px)}
+.login-err{color:var(--red);font-size:0.85rem;margin-top:10px}
+
+/* Dashboard Layout */
+#dashboard{display:none;min-height:100vh}
+.dash-sidebar{
+  position:fixed;top:0;left:0;bottom:0;width:240px;
+  background:var(--card);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;z-index:100;
+  padding:24px 0;
+}
+.dash-logo{padding:0 24px 24px;border-bottom:1px solid var(--border);margin-bottom:16px}
+.dash-logo div{font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--accent2)}
+.dash-logo span{font-size:0.75rem;color:var(--muted)}
+.nav-item{display:flex;align-items:center;gap:12px;padding:11px 24px;color:var(--muted);font-size:0.875rem;font-weight:600;transition:all 0.2s;cursor:pointer;border-left:3px solid transparent}
+.nav-item:hover{color:var(--text);background:rgba(157,78,221,0.08)}
+.nav-item.active{color:var(--accent2);background:rgba(157,78,221,0.12);border-left-color:var(--accent)}
+.nav-item svg{width:18px;height:18px;fill:currentColor;flex-shrink:0}
+.dash-main{margin-left:240px;padding:28px;min-height:100vh}
+
+/* Header */
+.dash-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px}
+.dash-title{font-family:'Rajdhani',sans-serif;font-size:1.8rem;font-weight:700}
+.dash-user{display:flex;align-items:center;gap:10px;font-size:0.875rem;color:var(--muted)}
+.dash-user strong{color:var(--text)}
+.btn-logout{padding:7px 16px;border-radius:8px;background:rgba(255,71,87,0.15);border:1px solid rgba(255,71,87,0.3);color:var(--red);font-size:0.8rem;font-weight:600;transition:all 0.2s}
+.btn-logout:hover{background:rgba(255,71,87,0.25)}
+
+/* Stat Cards */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:28px}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;display:flex;align-items:center;gap:16px}
+.stat-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.stat-icon svg{width:24px;height:24px;fill:currentColor}
+.stat-val{font-family:'Rajdhani',sans-serif;font-size:1.8rem;font-weight:700}
+.stat-label{font-size:0.78rem;color:var(--muted);margin-top:2px}
+
+/* Panel sections */
+.panel{display:none}
+.panel.active{display:block}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:20px}
+.card-title{font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card-title svg{width:18px;height:18px;fill:var(--accent2)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:0.78rem;font-weight:600;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px}
+.btn-primary{padding:10px 22px;border-radius:8px;background:var(--accent);color:#fff;font-weight:700;font-size:0.9rem;transition:all 0.2s}
+.btn-primary:hover{background:var(--accent2);transform:translateY(-1px)}
+.btn-danger{padding:6px 14px;border-radius:6px;background:rgba(255,71,87,0.15);color:var(--red);font-size:0.8rem;font-weight:600;border:1px solid rgba(255,71,87,0.3)}
+.btn-danger:hover{background:rgba(255,71,87,0.3)}
+.btn-secondary{padding:10px 22px;border-radius:8px;background:rgba(255,255,255,0.08);color:var(--text);border:1px solid var(--border);font-weight:600;font-size:0.9rem}
+
+/* List items */
+.list-item{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-radius:10px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);margin-bottom:8px}
+.list-item-info strong{font-size:0.9rem}
+.list-item-info span{display:block;font-size:0.78rem;color:var(--muted);margin-top:2px}
+
+/* Toggle switches */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.05)}
+.toggle-row:last-child{border-bottom:none}
+.toggle-label{font-size:0.9rem;font-weight:600}
+.toggle-sub{font-size:0.78rem;color:var(--muted);margin-top:2px}
+.switch{position:relative;display:inline-block;width:44px;height:24px}
+.switch input{opacity:0;width:0;height:0}
+.slider{position:absolute;inset:0;background:rgba(255,255,255,0.1);border-radius:12px;transition:0.3s;cursor:pointer}
+.slider::before{content:'';position:absolute;height:18px;width:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:0.3s}
+input:checked+.slider{background:var(--accent)}
+input:checked+.slider::before{transform:translateX(20px)}
+
+/* Toast */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 20px;font-size:0.875rem;font-weight:600;z-index:9999;animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* Responsive */
+@media(max-width:768px){
+  .dash-sidebar{width:100%;position:relative;height:auto}
+  .dash-main{margin-left:0}
+  .form-row{grid-template-columns:1fr}
+  .dash-sidebar{display:none}
+  #mobile-menu-btn{display:flex}
+}
+</style>
+</head>
+<body>
+
+<!-- Login Page -->
+<div id="login-page">
+  <div class="login-box">
+    <div class="login-logo">MAIM ANIMEX</div>
+    <p class="login-sub">Admin Dashboard – XT Maim</p>
+    <div class="login-field">
+      <label>Username</label>
+      <input type="text" id="login-user" placeholder="Enter username" autocomplete="off">
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="login-pass" placeholder="Enter password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn-login" onclick="doLogin()">Login to Dashboard</button>
+    <p class="login-err" id="login-err"></p>
+    <p style="margin-top:20px;font-size:0.75rem;color:var(--muted)">Developer: XT Maim &nbsp;|&nbsp; xtmaim28@gmail.com</p>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard">
+  <!-- Sidebar -->
+  <div class="dash-sidebar">
+    <div class="dash-logo">
+      <div>MAIM ANIMEX</div>
+      <span>Admin Panel</span>
+    </div>
+    <nav>
+      <div class="nav-item active" onclick="showPanel('stats')">
+        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item" onclick="showPanel('announcements')">
+        <svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/></svg>
+        Announcements
+      </div>
+      <div class="nav-item" onclick="showPanel('banners')">
+        <svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H3V5h18v14zm-10-7l-3 3.72L5 13l-3 4h18z"/></svg>
+        Hero Banners
+      </div>
+      <div class="nav-item" onclick="showPanel('anime')">
+        <svg viewBox="0 0 24 24"><path d="M18 4l2 4h-3l-2-4h-2l2 4h-3l-2-4H8l2 4H7L5 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4h-4z"/></svg>
+        Add Anime
+      </div>
+      <div class="nav-item" onclick="showPanel('sections')">
+        <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+        Manage Sections
+      </div>
+      <div class="nav-item" onclick="showPanel('cache')">
+        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        Cache & Tools
+      </div>
+      <div class="nav-item" style="margin-top:auto" onclick="window.location='/'">
+        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        Back to Site
+      </div>
+    </nav>
+  </div>
+
+  <!-- Main Content -->
+  <main class="dash-main">
+    <div class="dash-header">
+      <h1 class="dash-title" id="panel-title">Dashboard</h1>
+      <div class="dash-user">
+        Welcome, <strong>XT Maim</strong>
+        <button class="btn-logout" onclick="doLogout()">Logout</button>
+      </div>
+    </div>
+
+    <!-- Stats Panel -->
+    <div class="panel active" id="stats-panel">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(157,78,221,0.2);color:var(--accent2)">
+            <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+          </div>
+          <div><div class="stat-val" id="stat-visits">0</div><div class="stat-label">Total Visits</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(30,144,255,0.2);color:var(--blue)">
+            <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+          </div>
+          <div><div class="stat-val" id="stat-searches">0</div><div class="stat-label">Searches</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(46,213,115,0.2);color:var(--green)">
+            <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+          </div>
+          <div><div class="stat-val" id="stat-watches">0</div><div class="stat-label">Episodes Watched</div></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(255,215,0,0.2);color:var(--gold)">
+            <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+          </div>
+          <div><div class="stat-val" id="stat-banners">0</div><div class="stat-label">Featured Banners</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+          Site Status
+        </div>
+        <div class="toggle-row">
+          <div><div class="toggle-label">Backend Scraper</div><div class="toggle-sub">WatchAnimeWorld connection</div></div>
+          <span style="color:var(--green);font-weight:700">● Online</span>
+        </div>
+        <div class="toggle-row">
+          <div><div class="toggle-label">Cache System</div><div class="toggle-sub">In-memory cache active</div></div>
+          <span style="color:var(--green);font-weight:700">● Active</span>
+        </div>
+        <div class="toggle-row">
+          <div><div class="toggle-label">API Rate Limiting</div><div class="toggle-sub">200 req/15min</div></div>
+          <span style="color:var(--green);font-weight:700">● Enabled</span>
+        </div>
+      </div>
+
+      <div class="card" style="padding:16px 24px">
+        <p style="font-size:0.85rem;color:var(--muted)">Developer: <strong style="color:var(--text)">XT Maim</strong> &nbsp;|&nbsp;
+          <a href="mailto:xtmaim28@gmail.com" style="color:var(--accent2)">xtmaim28@gmail.com</a> &nbsp;|&nbsp;
+          <a href="https://wa.me/8801833515655" style="color:var(--green)">WhatsApp: 01833515655</a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Announcements Panel -->
+    <div class="panel" id="announcements-panel">
+      <div class="card">
+        <div class="card-title"><svg viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"/></svg> New Announcement</div>
+        <div class="form-group">
+          <label>Announcement Text</label>
+          <input type="text" id="ann-text" placeholder="e.g. New anime added! Check out Demon Slayer S4">
+        </div>
+        <div class="form-group">
+          <label>Type</label>
+          <select id="ann-type">
+            <option value="info">Info</option>
+            <option value="success">Success</option>
+            <option value="warning">Warning</option>
+          </select>
+        </div>
+        <button class="btn-primary" onclick="addAnnouncement()">Add Announcement</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Active Announcements</div>
+        <div id="ann-list"><p style="color:var(--muted);font-size:0.875rem">No announcements yet.</p></div>
+      </div>
+    </div>
+
+    <!-- Banners Panel -->
+    <div class="panel" id="banners-panel">
+      <div class="card">
+        <div class="card-title"><svg viewBox="0 0 24 24"><path d="M21 3H3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg> Add Hero Banner</div>
+        <div class="form-row">
+          <div class="form-group"><label>Anime Title</label><input type="text" id="ban-title" placeholder="e.g. Attack on Titan"></div>
+          <div class="form-group"><label>Image URL</label><input type="text" id="ban-img" placeholder="https://..."></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Anime ID / Link</label><input type="text" id="ban-link" placeholder="anime-id or full URL"></div>
+        </div>
+        <div class="form-group"><label>Description</label><textarea id="ban-desc" placeholder="Brief description..."></textarea></div>
+        <button class="btn-primary" onclick="addBanner()">Add to Hero Slider</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Featured Banners</div>
+        <div id="banner-list"><p style="color:var(--muted);font-size:0.875rem">No custom banners yet.</p></div>
+      </div>
+    </div>
+
+    <!-- Add Anime Panel -->
+    <div class="panel" id="anime-panel">
+      <div class="card">
+        <div class="card-title"><svg viewBox="0 0 24 24"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg> Add Anime Manually</div>
+        <div class="form-row">
+          <div class="form-group"><label>Title *</label><input type="text" id="am-title" placeholder="Anime title"></div>
+          <div class="form-group"><label>Thumbnail URL</label><input type="text" id="am-thumb" placeholder="https://..."></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Watch Link / ID</label><input type="text" id="am-link" placeholder="anime-id or URL"></div>
+          <div class="form-group"><label>Genres (comma separated)</label><input type="text" id="am-genres" placeholder="Action, Fantasy, ..."></div>
+        </div>
+        <div class="form-group"><label>Description</label><textarea id="am-desc" placeholder="Anime description..."></textarea></div>
+        <button class="btn-primary" onclick="addAnime()">Add Anime</button>
+      </div>
+      <div class="card">
+        <div class="card-title">Manual Anime List</div>
+        <div id="anime-list"><p style="color:var(--muted);font-size:0.875rem">No manually added anime yet.</p></div>
+      </div>
+    </div>
+
+    <!-- Sections Panel -->
+    <div class="panel" id="sections-panel">
+      <div class="card">
+        <div class="card-title"><svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg> Home Page Sections</div>
+        <div class="toggle-row">
+          <div><div class="toggle-label">Trending Section</div><div class="toggle-sub">Show trending anime row</div></div>
+          <label class="switch"><input type="checkbox" id="sec-trending" checked onchange="updateSections()"><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div><div class="toggle-label">Recent Section</div><div class="toggle-sub">Show recently added anime</div></div>
+          <label class="switch"><input type="checkbox" id="sec-recent" checked onchange="updateSections()"><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div><div class="toggle-label">Hindi Dubbed Section</div><div class="toggle-sub">Show Hindi dub anime row</div></div>
+          <label class="switch"><input type="checkbox" id="sec-hindi" checked onchange="updateSections()"><span class="slider"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div><div class="toggle-label">Popular Section</div><div class="toggle-sub">Show popular anime sidebar</div></div>
+          <label class="switch"><input type="checkbox" id="sec-popular" checked onchange="updateSections()"><span class="slider"></span></label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Cache Panel -->
+    <div class="panel" id="cache-panel">
+      <div class="card">
+        <div class="card-title"><svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg> Cache Management</div>
+        <p style="font-size:0.875rem;color:var(--muted);margin-bottom:16px">Cache stores scraped data temporarily to reduce API load and improve speed.</p>
+        <button class="btn-primary" onclick="clearCache()">🗑️ Clear All Cache</button>
+        <button class="btn-secondary" style="margin-left:12px" onclick="loadStats()">↻ Refresh Stats</button>
+      </div>
+      <div class="card">
+        <div class="card-title">API Endpoints</div>
+        <div style="font-family:monospace;font-size:0.8rem;color:var(--muted)">
+          <div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05)">GET /api/home</div>
+          <div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05)">GET /api/search?q=query</div>
+          <div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05)">GET /api/anime/:id</div>
+          <div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05)">GET /api/episode/:id</div>
+          <div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05)">GET /api/hindi-dub</div>
+          <div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05)">GET /api/trending</div>
+          <div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.05)">GET /api/recent</div>
+          <div style="padding:6px 0">POST /api/admin/login</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+let adminToken = sessionStorage.getItem('admin_token') || '';
+const API = '/api/admin';
+
+if (adminToken) showDashboard();
+
+async function doLogin() {
+  const u = document.getElementById('login-user').value;
+  const p = document.getElementById('login-pass').value;
+  try {
+    const res = await fetch(`${API}/login`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: u, password: p })
+    });
+    const data = await res.json();
+    if (data.success) {
+      adminToken = data.token;
+      sessionStorage.setItem('admin_token', adminToken);
+      showDashboard();
+    } else {
+      document.getElementById('login-err').textContent = 'Invalid username or password.';
+    }
+  } catch(e) {
+    document.getElementById('login-err').textContent = 'Connection error. Is the server running?';
+  }
+}
+
+function showDashboard() {
+  document.getElementById('login-page').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'flex';
+  loadStats();
+}
+
+function doLogout() {
+  sessionStorage.removeItem('admin_token');
+  adminToken = '';
+  location.reload();
+}
+
+async function adminFetch(path, method = 'GET', body) {
+  const opts = {
+    method,
+    headers: { 'Content-Type': 'application/json', 'x-admin-token': adminToken }
+  };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(API + path, opts);
+  return res.json();
+}
+
+async function loadStats() {
+  const data = await adminFetch('/stats');
+  if (!data) return;
+  document.getElementById('stat-visits').textContent = data.stats?.totalVisits || 0;
+  document.getElementById('stat-searches').textContent = data.stats?.searchCount || 0;
+  document.getElementById('stat-watches').textContent = data.stats?.watchCount || 0;
+  document.getElementById('stat-banners').textContent = data.featuredBanners?.length || 0;
+  renderAnnouncements(data.announcements || []);
+  renderBanners(data.featuredBanners || []);
+  renderAnimeList(data.manualAnime || []);
+  if (data.homeSections) {
+    document.getElementById('sec-trending').checked = data.homeSections.showTrending;
+    document.getElementById('sec-recent').checked = data.homeSections.showRecent;
+    document.getElementById('sec-hindi').checked = data.homeSections.showHindi;
+    document.getElementById('sec-popular').checked = data.homeSections.showPopular;
+  }
+}
+
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById(`${name}-panel`).classList.add('active');
+  event.currentTarget.classList.add('active');
+  const titles = { stats:'Dashboard', announcements:'Announcements', banners:'Hero Banners', anime:'Add Anime', sections:'Manage Sections', cache:'Cache & Tools' };
+  document.getElementById('panel-title').textContent = titles[name] || name;
+}
+
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast'; t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+async function addAnnouncement() {
+  const text = document.getElementById('ann-text').value.trim();
+  const type = document.getElementById('ann-type').value;
+  if (!text) return toast('Enter announcement text');
+  const data = await adminFetch('/announcement', 'POST', { text, type });
+  if (data.success) {
+    document.getElementById('ann-text').value = '';
+    await loadStats();
+    toast('Announcement added!');
+  }
+}
+
+function renderAnnouncements(list) {
+  const el = document.getElementById('ann-list');
+  if (!list.length) { el.innerHTML = '<p style="color:var(--muted);font-size:0.875rem">No announcements yet.</p>'; return; }
+  el.innerHTML = list.map(a => `
+    <div class="list-item">
+      <div class="list-item-info">
+        <strong>${esc(a.text)}</strong>
+        <span>${a.type} • ${new Date(a.createdAt).toLocaleDateString()}</span>
+      </div>
+      <button class="btn-danger" onclick="deleteAnn(${a.id})">Remove</button>
+    </div>
+  `).join('');
+}
+
+async function deleteAnn(id) {
+  await adminFetch(`/announcement/${id}`, 'DELETE');
+  await loadStats(); toast('Removed');
+}
+
+async function addBanner() {
+  const title = document.getElementById('ban-title').value.trim();
+  const img = document.getElementById('ban-img').value.trim();
+  const link = document.getElementById('ban-link').value.trim();
+  const desc = document.getElementById('ban-desc').value.trim();
+  if (!title) return toast('Title required');
+  const data = await adminFetch('/banner', 'POST', { title, img, link, desc });
+  if (data.success) {
+    ['ban-title','ban-img','ban-link','ban-desc'].forEach(id => document.getElementById(id).value = '');
+    await loadStats(); toast('Banner added!');
+  }
+}
+
+function renderBanners(list) {
+  const el = document.getElementById('banner-list');
+  if (!list.length) { el.innerHTML = '<p style="color:var(--muted);font-size:0.875rem">No custom banners yet.</p>'; return; }
+  el.innerHTML = list.map(b => `
+    <div class="list-item">
+      <div style="display:flex;align-items:center;gap:12px">
+        ${b.img ? `<img src="${esc(b.img)}" style="width:60px;height:40px;object-fit:cover;border-radius:6px" onerror="this.style.display='none'">` : ''}
+        <div class="list-item-info"><strong>${esc(b.title)}</strong><span>${esc(b.link||'')}</span></div>
+      </div>
+      <button class="btn-danger" onclick="deleteBanner(${b.id})">Remove</button>
+    </div>
+  `).join('');
+}
+
+async function deleteBanner(id) {
+  await adminFetch(`/banner/${id}`, 'DELETE');
+  await loadStats(); toast('Removed');
+}
+
+async function addAnime() {
+  const title = document.getElementById('am-title').value.trim();
+  const thumbnail = document.getElementById('am-thumb').value.trim();
+  const link = document.getElementById('am-link').value.trim();
+  const description = document.getElementById('am-desc').value.trim();
+  const genres = document.getElementById('am-genres').value.split(',').map(g=>g.trim()).filter(Boolean);
+  if (!title) return toast('Title is required');
+  const data = await adminFetch('/add-anime', 'POST', { title, thumbnail, link, description, genres });
+  if (data.success) {
+    ['am-title','am-thumb','am-link','am-genres','am-desc'].forEach(id => document.getElementById(id).value = '');
+    await loadStats(); toast('Anime added!');
+  }
+}
+
+function renderAnimeList(list) {
+  const el = document.getElementById('anime-list');
+  if (!list.length) { el.innerHTML = '<p style="color:var(--muted);font-size:0.875rem">No manually added anime yet.</p>'; return; }
+  el.innerHTML = list.map(a => `
+    <div class="list-item">
+      <div style="display:flex;align-items:center;gap:12px">
+        ${a.thumbnail ? `<img src="${esc(a.thumbnail)}" style="width:40px;height:56px;object-fit:cover;border-radius:6px" onerror="this.style.display='none'">` : ''}
+        <div class="list-item-info"><strong>${esc(a.title)}</strong><span>${esc((a.genres||[]).join(', '))}</span></div>
+      </div>
+      <button class="btn-danger" onclick="deleteAnime('${esc(a.id)}')">Remove</button>
+    </div>
+  `).join('');
+}
+
+async function deleteAnime(id) {
+  await adminFetch(`/anime/${id}`, 'DELETE');
+  await loadStats(); toast('Removed');
+}
+
+async function updateSections() {
+  const body = {
+    showTrending: document.getElementById('sec-trending').checked,
+    showRecent: document.getElementById('sec-recent').checked,
+    showHindi: document.getElementById('sec-hindi').checked,
+    showPopular: document.getElementById('sec-popular').checked
+  };
+  await adminFetch('/sections', 'POST', body);
+  toast('Sections updated!');
+}
+
+async function clearCache() {
+  const data = await adminFetch('/clear-cache', 'POST');
+  if (data.success) toast('Cache cleared!');
+}
+
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+</script>
+</body>
+</html>

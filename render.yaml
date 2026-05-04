@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: maim-animex
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: ADMIN_USERNAME
+        value: xtmaim
+      - key: ADMIN_PASSWORD
+        value: xtmaim2024secure
+      - key: JWT_SECRET
+        value: animex_maim_secret_2024
+      - key: CACHE_TTL
+        value: 300
+      - key: BASE_URL
+        value: https://watchanimeworld.net
